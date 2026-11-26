@@ -19,12 +19,14 @@ Em vez de um roteiro gigante e engessado, o AnamneseKit cruza **tipo de consulta
 | **Olhar funcional (AVDs)** | Impacto nas atividades de vida diária, adaptações, trabalho/escola e meta centrada na pessoa (Katz, Lawton, brincar). |
 | **Prioridades** | Alarme, essencial e complementar. No PS, "complementar" começa desligado para manter o roteiro enxuto. |
 | **"Por que perguntar?"** | Cada pergunta-chave traz o raciocínio clínico por trás dela. |
+| **Modo preencher** | Campo de resposta em cada pergunta e de achados em cada item de exame, com progresso de respondidas. A anamnese copiada ou exportada já sai com as respostas. |
+| **Exportar e importar** | Exporte o atendimento em `.json` (para continuar depois ou em outro computador) ou em `.txt` (para colar ou arquivar). Importe um `.json` exportado aqui ou um `.txt` com uma pergunta por linha, que vira “Minhas perguntas”. |
 | **Marcar e copiar** | Marque o que vai usar e copie o roteiro pronto (com ou sem dicas) para o prontuário, caderno ou app de notas. |
 | **Modo estudo** | Esconde as perguntas para treinar de memória, com autoavaliação ("lembrei / não lembrei") e barra de progresso. |
 | **Perguntas próprias** | Adicione suas perguntas; elas ficam salvas no navegador. |
 | **Impressão** | Layout de impressão limpo, só com o roteiro. |
 
-Tudo roda no navegador, sem backend e sem coletar dados: as preferências ficam no `localStorage`.
+Tudo roda no navegador, sem backend e sem coletar dados: preferências e respostas ficam só no `localStorage` do próprio navegador. Evite registrar dados que identifiquem pacientes.
 
 ## Como rodar
 
@@ -40,7 +42,7 @@ Abra o endereço que aparecer no terminal (normalmente `http://localhost:5173`).
 Outros comandos:
 
 ```bash
-npm test           # testes do motor de roteiros (Vitest)
+npm test           # testes do motor e da importação/exportação (Vitest)
 npm run typecheck  # verificação de tipos
 npm run build      # versão de produção em dist/
 npm run preview    # serve a versão de produção
@@ -65,11 +67,13 @@ src/
 ├── lib/
 │   ├── roteiro.ts         # motor: filtra, prioriza, ordena e formata o roteiro
 │   ├── roteiro.test.ts    # testes do motor
+│   ├── arquivo.ts         # exportar/importar (.json e .txt)
+│   ├── arquivo.test.ts    # testes de exportação e importação
 │   └── storage.ts         # persistência local e cópia para a área de transferência
 ├── components/
 │   ├── PainelConfig.tsx   # seleção de cenário, público, focos e prioridades
 │   ├── SecaoCard.tsx      # seção recolhível do roteiro
-│   ├── PerguntaItem.tsx   # pergunta, dica e modo estudo
+│   ├── PerguntaItem.tsx   # pergunta, dica, campo de resposta e modo estudo
 │   └── NovaPergunta.tsx   # formulário de perguntas próprias
 ├── App.tsx
 ├── main.tsx

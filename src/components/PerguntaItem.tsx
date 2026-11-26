@@ -2,13 +2,16 @@ import { useState } from 'react';
 import { PRIORIDADES } from '../data/meta';
 import type { PerguntaResolvida } from '../types';
 
+export type Modo = 'roteiro' | 'preencher' | 'estudo';
 export type ResultadoEstudo = 'lembrei' | 'esqueci';
 
 interface Props {
   pergunta: PerguntaResolvida;
+  modo: Modo;
   marcada: boolean;
   onToggleMarcada: () => void;
-  modoEstudo: boolean;
+  resposta: string;
+  onResposta: (texto: string) => void;
   revelada: boolean;
   resultado?: ResultadoEstudo;
   onRevelar: () => void;
@@ -18,9 +21,11 @@ interface Props {
 
 export function PerguntaItem({
   pergunta,
+  modo,
   marcada,
   onToggleMarcada,
-  modoEstudo,
+  resposta,
+  onResposta,
   revelada,
   resultado,
   onRevelar,
@@ -28,16 +33,27 @@ export function PerguntaItem({
   onRemover,
 }: Props) {
   const [dicaAberta, setDicaAberta] = useState(false);
-  const oculta = modoEstudo && !revelada;
+  const estudo = modo === 'estudo';
+  const preencher = modo === 'preencher';
+  const oculta = estudo && !revelada;
+  const ehExame = pergunta.secao.startsWith('exame');
+  const idCampo = `campo-${pergunta.id}`;
   const idCheck = `chk-${pergunta.id}`;
+  const respondida = preencher && resposta.trim().length > 0;
+
+  const classes = [
+    'pergunta',
+    `prioridade-${pergunta.prioridade}`,
+    modo === 'roteiro' && marcada ? 'marcada' : '',
+    respondida ? 'respondida' : '',
+    resultado ? `resultado-${resultado}` : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
-    <li
-      className={`pergunta prioridade-${pergunta.prioridade} ${marcada ? 'marcada' : ''} ${modoEstudo ? 'estudo' : ''} ${
-        resultado ? `resultado-${resultado}` : ''
-      }`}
-    >
-      {!modoEstudo && (
+    <li className={classes}>
+      {modo === 'roteiro' && (
         <input
           id={idCheck}
           type="checkbox"
@@ -45,6 +61,11 @@ export function PerguntaItem({
           onChange={onToggleMarcada}
           aria-label="Usar esta pergunta"
         />
+      )}
+      {preencher && (
+        <span className={`status ${respondida ? 'ok' : ''}`} aria-hidden="true">
+          {respondida ? '✓' : ''}
+        </span>
       )}
 
       <div className="pergunta-corpo">
@@ -62,15 +83,26 @@ export function PerguntaItem({
             </span>
             <span className="revelar-rotulo">Tente lembrar… toque para revelar</span>
           </button>
-        ) : modoEstudo ? (
+        ) : estudo ? (
           <p className="pergunta-texto">{pergunta.texto}</p>
         ) : (
-          <label htmlFor={idCheck} className="pergunta-texto">
+          <label htmlFor={preencher ? idCampo : idCheck} className="pergunta-texto">
             {pergunta.texto}
           </label>
         )}
 
-        {modoEstudo && revelada && (
+        {preencher && (
+          <textarea
+            id={idCampo}
+            className="resposta"
+            rows={1}
+            value={resposta}
+            placeholder={ehExame ? 'Achados do exame…' : 'Resposta…'}
+            onChange={(e) => onResposta(e.target.value)}
+          />
+        )}
+
+        {estudo && revelada && (
           <div className="autoavaliacao" role="group" aria-label="Você lembrou desta pergunta?">
             <button
               type="button"
@@ -97,18 +129,14 @@ export function PerguntaItem({
               aria-expanded={dicaAberta}
               onClick={() => setDicaAberta((v) => !v)}
             >
-              {dicaAberta
-                ? 'Esconder dica'
-                : pergunta.secao.startsWith('exame')
-                  ? 'Dica de exame'
-                  : 'Por que perguntar?'}
+              {dicaAberta ? 'Esconder dica' : ehExame ? 'Dica de exame' : 'Por que perguntar?'}
             </button>
             {dicaAberta && <p className="dica">{pergunta.dica}</p>}
           </>
         )}
       </div>
 
-      {onRemover && !modoEstudo && (
+      {onRemover && modo === 'roteiro' && (
         <button type="button" className="remover" onClick={onRemover} aria-label="Remover pergunta">
           ×
         </button>

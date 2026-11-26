@@ -140,6 +140,22 @@ button:disabled {
   .marca p {
     display: none;
   }
+
+  .topo {
+    flex-wrap: wrap;
+  }
+
+  .modos {
+    width: 100%;
+  }
+
+  .modos button {
+    flex: 1;
+  }
+
+  .botao.perigo {
+    margin-left: 0;
+  }
 }
 
 /* ───────── layout ───────── */
@@ -417,10 +433,135 @@ button:disabled {
   background: var(--primaria-clara);
 }
 
-.modo-estudo.ativo {
-  background: var(--tinta);
-  border-color: var(--tinta);
-  color: var(--superficie);
+/* seletor de modo no topo */
+.modos {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 11px;
+  background: var(--superficie-2);
+}
+
+.modos button {
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--tinta-suave);
+}
+
+.modos button.ativo {
+  background: var(--primaria);
+  color: var(--sobre-primaria);
+}
+
+/* modo preencher */
+.preencher-topo {
+  flex: 1 1 320px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.campo-titulo {
+  flex: 1 1 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--tinta-suave);
+}
+
+.campo-titulo input {
+  padding: 8px 11px;
+  border: 1px solid var(--borda);
+  border-radius: 9px;
+  background: var(--superficie);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--tinta);
+}
+
+.preencher-topo .progresso {
+  flex: 1 1 160px;
+}
+
+.acoes.arquivo {
+  flex-basis: 100%;
+  padding-top: 10px;
+  border-top: 1px solid var(--borda);
+}
+
+.rotulo-arquivo {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--tinta-suave);
+  margin-right: 4px;
+}
+
+.ajuda-arquivo {
+  flex-basis: 100%;
+  margin: -4px 0 0;
+  font-size: 12.5px;
+  color: var(--tinta-suave);
+}
+
+.botao.perigo {
+  margin-left: auto;
+  border-color: var(--alarme);
+  color: var(--alarme);
+}
+
+.botao.perigo:hover:not(:disabled) {
+  background: var(--alarme-claro);
+}
+
+.botao.perigo.confirmar {
+  background: var(--alarme);
+  color: var(--sobre-primaria);
+}
+
+.resposta {
+  width: 100%;
+  min-height: 38px;
+  margin-top: 4px;
+  padding: 8px 11px;
+  border: 1px solid var(--borda);
+  border-radius: 9px;
+  background: var(--fundo);
+  font: inherit;
+  font-size: 14.5px;
+  color: var(--tinta);
+  resize: vertical;
+  field-sizing: content;
+  max-height: 320px;
+}
+
+.resposta:focus {
+  border-color: var(--primaria);
+  background: var(--superficie);
+}
+
+.status {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  border: 1.5px solid var(--borda);
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.status.ok {
+  border-color: var(--ok);
+  background: var(--ok);
+  color: var(--sobre-primaria);
 }
 
 .progresso {
@@ -778,6 +919,8 @@ p.pergunta-texto {
   .link-dica,
   .remover,
   .aviso,
+  .modos,
+  .ajuda-arquivo,
   .autoavaliacao,
   .seta {
     display: none !important;
@@ -802,6 +945,18 @@ p.pergunta-texto {
 
   .borrado {
     filter: none;
+  }
+
+  .resposta {
+    border: 0;
+    padding: 2px 0;
+    background: none;
+    resize: none;
+  }
+
+  .resposta:placeholder-shown,
+  .status {
+    display: none;
   }
 
   .revelar-rotulo {

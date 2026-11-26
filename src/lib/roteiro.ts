@@ -83,14 +83,23 @@ export function contarPerguntas(secoes: SecaoResolvida[]): number {
 export function formatarRoteiro(
   secoes: SecaoResolvida[],
   config: Config,
-  opcoes: { somenteIds?: Set<string>; incluirDicas?: boolean; data?: Date } = {},
+  opcoes: {
+    somenteIds?: Set<string>;
+    incluirDicas?: boolean;
+    respostas?: Record<string, string>;
+    titulo?: string;
+    data?: Date;
+  } = {},
 ): string {
-  const { somenteIds, incluirDicas = false, data = new Date() } = opcoes;
+  const { somenteIds, incluirDicas = false, respostas, titulo, data = new Date() } = opcoes;
   const focos = focosValidos(config.focos, config.publico).map((f) => FOCOS[f].nome);
 
   const linhas: string[] = [
-    `ROTEIRO DE ANAMNESE — ${CENARIOS[config.cenario].nome} · ${PUBLICOS[config.publico].nome}`,
+    `${respostas && Object.values(respostas).some((r) => r.trim()) ? 'ANAMNESE' : 'ROTEIRO DE ANAMNESE'} — ${
+      CENARIOS[config.cenario].nome
+    } · ${PUBLICOS[config.publico].nome}`,
   ];
+  if (titulo?.trim()) linhas.push(`Atendimento: ${titulo.trim()}`);
   if (focos.length) linhas.push(`Focos: ${focos.join(', ')}`);
   linhas.push(`Gerado em ${data.toLocaleDateString('pt-BR')} com AnamneseKit`);
 
@@ -104,6 +113,13 @@ export function formatarRoteiro(
     for (const p of perguntas) {
       const marcador = p.prioridade === 'alarme' ? '[!]' : '[ ]';
       linhas.push(`${marcador} ${p.texto}`);
+      const resposta = respostas?.[p.id]?.trim();
+      if (resposta) {
+        const rotulo = p.secao.startsWith('exame') ? 'Achados' : 'R';
+        resposta.split(/\r?\n/).forEach((linha, i) =>
+          linhas.push(`    ${i === 0 ? `${rotulo}: ` : ' '.repeat(rotulo.length + 2)}${linha}`),
+        );
+      }
       if (incluirDicas && p.dica) linhas.push(`    ↳ ${p.dica}`);
     }
   }

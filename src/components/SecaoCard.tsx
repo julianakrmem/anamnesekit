@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import type { SecaoResolvida } from '../types';
-import { PerguntaItem, type ResultadoEstudo } from './PerguntaItem';
+import { PerguntaItem, type Modo, type ResultadoEstudo } from './PerguntaItem';
 
 interface Props {
   secao: SecaoResolvida;
   indice: number;
+  modo: Modo;
   marcadas: Set<string>;
   onToggleMarcada: (id: string) => void;
   onMarcarSecao: (ids: string[], marcar: boolean) => void;
-  modoEstudo: boolean;
+  respostas: Record<string, string>;
+  onResposta: (id: string, texto: string) => void;
   reveladas: Set<string>;
   resultados: Record<string, ResultadoEstudo>;
   onRevelar: (id: string) => void;
@@ -19,10 +21,12 @@ interface Props {
 export function SecaoCard({
   secao,
   indice,
+  modo,
   marcadas,
   onToggleMarcada,
   onMarcarSecao,
-  modoEstudo,
+  respostas,
+  onResposta,
   reveladas,
   resultados,
   onRevelar,
@@ -32,8 +36,16 @@ export function SecaoCard({
   const [aberta, setAberta] = useState(true);
   const ids = secao.perguntas.map((p) => p.id);
   const qtdMarcadas = ids.filter((id) => marcadas.has(id)).length;
+  const qtdRespondidas = ids.filter((id) => respostas[id]?.trim()).length;
   const todasMarcadas = qtdMarcadas === ids.length;
   const temAlarme = secao.perguntas.some((p) => p.prioridade === 'alarme');
+
+  const contagem =
+    modo === 'roteiro'
+      ? `${qtdMarcadas}/${ids.length}`
+      : modo === 'preencher'
+        ? `${qtdRespondidas}/${ids.length}`
+        : `${ids.length}`;
 
   return (
     <section className={`secao ${temAlarme ? 'tem-alarme' : ''}`}>
@@ -46,14 +58,12 @@ export function SecaoCard({
         >
           <span className="secao-num">{String(indice + 1).padStart(2, '0')}</span>
           <h2>{secao.titulo}</h2>
-          <span className="secao-contagem">
-            {modoEstudo ? `${ids.length}` : `${qtdMarcadas}/${ids.length}`}
-          </span>
+          <span className="secao-contagem">{contagem}</span>
           <span className={`seta ${aberta ? 'aberta' : ''}`} aria-hidden="true">
             ▾
           </span>
         </button>
-        {!modoEstudo && aberta && (
+        {modo === 'roteiro' && aberta && (
           <button
             type="button"
             className="link"
@@ -70,9 +80,11 @@ export function SecaoCard({
             <PerguntaItem
               key={p.id}
               pergunta={p}
+              modo={modo}
               marcada={marcadas.has(p.id)}
               onToggleMarcada={() => onToggleMarcada(p.id)}
-              modoEstudo={modoEstudo}
+              resposta={respostas[p.id] ?? ''}
+              onResposta={(texto) => onResposta(p.id, texto)}
               revelada={reveladas.has(p.id)}
               resultado={resultados[p.id]}
               onRevelar={() => onRevelar(p.id)}
